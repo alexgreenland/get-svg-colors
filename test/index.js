@@ -47,6 +47,16 @@ describe('get-svg-colors', function(){
     assert(strokes.indexOf('#803300') > -1)
     assert(stops.indexOf('#000000') > -1)
   })
+  
+  it('extracts embedded styles', function() {
+    var colors = getColors(__dirname + '/fixtures/embedded-styles.svg')
+    var fills = colors.fills.map(color => color.hex())
+    var strokes = colors.strokes.map(color => color.hex())
+    var stops = colors.stops.map(color => color.hex())
+    assert(fills.indexOf('#1d1d1b') > -1)
+    assert(strokes.length === 0)
+    assert(stops.length === 0)
+  })
 
   it('supports radial gradients', function() {
     var colors = getColors(__dirname + '/fixtures/radial-gradient.svg')

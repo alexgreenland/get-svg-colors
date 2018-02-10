@@ -4,6 +4,7 @@ const isSVG = require('is-svg')
 const uniq = require('lodash.uniq')
 const compact = require('lodash.compact')
 const chroma = require('chroma-js')
+const css = require('css')
 const hexy = /^#[0-9a-f]{3,6}$/i
 
 function isColorString(str) {
@@ -44,6 +45,22 @@ module.exports = function getSvgColors(input, options) {
     fills.push(color($(this).css('fill')))
     strokes.push(color($(this).css('stroke')))
     stops.push(color($(this).css('stop-color')))
+  })
+  
+  // Find `fill`, `stroke` and `stops` within embedded stylesheets
+  $('style').each(function (i, el) {
+    const ast = css.parse($(this).text())
+    ast.stylesheet.rules.forEach(rule => {
+      rule.declarations.forEach(declaration => {
+        if (declaration.property === 'fill') {
+          fills.push(color(declaration.value))
+        } else if (declaration.property === 'stroke') {
+          strokes.push(color(declaration.value))
+        } else if (declaration.property === 'stop-color') {
+          stops.push(color(declaration.value))
+        }
+      })
+    })
   })
 
   if (options && options.flat) {
